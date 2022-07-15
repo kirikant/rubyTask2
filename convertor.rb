@@ -34,14 +34,15 @@ class Convertor
       html = if page_counter == 1
                Curl.get(url)
              else
-               Curl.get(url + "&p=#{page_counter}")
+               Curl.get(url + "?p=#{page_counter}")
              end
 
       if !String.new(html.body_str).empty?
 
         category_page = Nokogiri::HTML(html.body_str)
         puts "parsing page number #{page_counter}"
-        products = category_page.xpath('//div[@class="main_content_area"]//div[@class="columns-container wide_container"]
+        products = category_page.xpath('//div[@class="main_content_area"]
+//div[@class="columns-container wide_container"]
     //div[@class="pro_outer_box"]')
 
         products_hash = get_href_title(products)
@@ -83,7 +84,8 @@ class Convertor
 
     puts 'getting images of products'
     threads << Thread.new do
-      products_info.xpath('//img[@class="replace-2x img-responsive front-image"]//@src').each_with_index do |image_ref, i|
+      products_info.xpath('//img[@class="replace-2x img-responsive front-image"]//@src')
+                   .each_with_index do |image_ref, i|
         image_refs_hash[String.new(package_refs[i])] = String.new(image_ref)
       end
     end
@@ -98,6 +100,7 @@ class Convertor
     ref_packages = {}
     products_hash[2].each do |ref|
       threads << Thread.new do
+        puts "ref: #{ref}"
         html = Curl.get(ref)
         product_page = Nokogiri::HTML(html.body_str)
         html.close
